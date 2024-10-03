@@ -288,6 +288,107 @@ namespace Godot.SourceGenerators
                     .Append(signalName)
                     .Append(" -= value;\n")
                     .Append("}\n");
+
+				// ATTENTION: das's changement here
+				string get_signal_param_list()
+				{
+					if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
+						return "";
+					string result = "<";
+					for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
+					{
+						if (i != 0)
+							result += ", ";
+
+						result += signalDelegate.InvokeMethodData.ParamTypeSymbols[i].FullQualifiedNameIncludeGlobal();
+					}
+					
+					result += ">";
+					return result;
+				}
+
+				string get_oneshot_func_name()
+				{
+					string result = "void oneshotAction(";
+					if (signalDelegate.InvokeMethodData.ParamTypes.Length != 0)
+					{
+						for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
+						{
+							if (i != 0)
+								result += ", ";
+
+							result += signalDelegate.InvokeMethodData.ParamTypeSymbols[i].FullQualifiedNameIncludeGlobal();
+							result += " arg" + i.ToString();
+						}
+					}
+					result += ")";
+					return result;
+				}
+
+				string get_oneshot_func_invoke()
+				{
+					string result = "value?.Invoke(";
+					if (signalDelegate.InvokeMethodData.ParamTypes.Length != 0)
+					{
+						for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
+						{
+							if (i != 0)
+								result += ", ";
+							
+							result += "arg" + i.ToString();
+						}
+					}
+					result += ");";
+					return result;
+				}
+
+				// Signal + SignalName: Use godot Connect API
+				source.Append("    public event System.Action" + get_signal_param_list())
+                    .Append(" Signal")
+                    .Append(signalName)
+                    .Append(" {\n")
+                    .Append("        add => Connect(SignalName.")
+                    .Append(signalName)
+					.Append(", Callable.From(value));\n")
+                    .Append("        remove => Disconnect(SignalName.")
+                    .Append(signalName)
+					.Append(", Callable.From(value));\n")
+                    .Append("}\n");
+
+				// SignalOneshot + SignalName: Use godot Connect API with oneshot flag
+				source.Append("    public event System.Action" + get_signal_param_list())
+                    .Append(" SignalOneshot")
+                    .Append(signalName)
+                    .Append(" {\n")
+                    .Append("        add => Connect(SignalName.")
+                    .Append(signalName)
+					.Append(", Callable.From(value), (uint)ConnectFlags.OneShot);\n")
+                    .Append("        remove => Disconnect(SignalName.")
+                    .Append(signalName)
+					.Append(", Callable.From(value));\n")
+                    .Append("}\n");
+
+				// Oneshot + SignalName: C# event with oneshot
+				source.Append("    public event System.Action" + get_signal_param_list())
+                    .Append(" Oneshot")
+                    .Append(signalName)
+                    .Append(" {\n")
+                    .Append("        add {\n            ")
+					.Append(get_oneshot_func_name() + "{\n                ")
+					.Append(get_oneshot_func_invoke())
+					.Append("\n                ")
+                    .Append(signalName)
+					.Append(" -= oneshotAction;\n}\n            ")
+					.Append(signalName)
+					.Append(" += oneshotAction;\n}\n")
+					.Append("        remove {\n            ")
+					.Append(get_oneshot_func_name() + "{\n                ")
+					.Append(get_oneshot_func_invoke())
+					.Append("\n                ")
+                    .Append(signalName)
+					.Append(" -= oneshotAction;\n}\n            ")
+					.Append(signalName)
+					.Append(" -= oneshotAction;\n}\n}\n");
             }
 
             // Generate RaiseGodotClassSignalCallbacks
