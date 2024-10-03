@@ -1,4 +1,46 @@
-# Godot Engine
+# Godot Moon
+
+This is my personal customized Godot based on 4.3.0 stable.
+
+## Changement
+
+### Custom prefix of C# signal
+
+In official builds, the custom C# signal is just general C# event, while the signals of godot's build-in nodes are all based on godot signal. I personally prefer the approach of godot signal, since it will automatically disconnect signals when relevant nodes exit the tree.
+
+It's possible to use godot signal in C# by using `Connect`, but it's very inconvenient compared to `+=` approach. I altered the C# source generator to provide an easier way to use custom C# signal with godot signal approach.
+
+In short, now the attribute `[Signal]` will generate three extra C# events:
+
+```csharp
+[Signal]
+public delegate void TimeoutEventHandler();
+
+public override void _Ready()
+{
+    // general C# event approach, we have to do `-=` manually
+    Timeout += SomeFunc();
+
+    // godot signal approach, equivalent to godot `Connect`
+    SignalTimeout += SomeFunc();
+
+    // godot signal with oneshot flag
+    SignalOneshotTimeout += SomeFunc();
+
+    // general C# event approach with simple oneshot support
+    OneshotTimeout += SomeFunc();
+}
+```
+
+### `move_and_slide(delta)`
+
+`move_and_slide` method of `CharacterBody2D/3D` now needs a `delta` parameter.
+
+This provide an easy way to implement game speed control (e.g. gimmicks in Braid) by scaling the `delta` parameter.
+
+## Godot Engine
+
+The followings are the original README content of Godot engine.
 
 <p align="center">
   <a href="https://godotengine.org">
