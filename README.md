@@ -32,6 +32,10 @@ public override void _Ready()
 }
 ```
 
+### `TweenExtensions` for C#
+
+Wrting `Tween.TweenCallback(Callable.From(someFunc))` is annoyed, with `TweenExtensions` we can just write `Tween.TweenCallback(someFunc)`.
+
 ### `move_and_slide(delta)`
 
 `move_and_slide` method of `CharacterBody2D/3D` now needs a `delta` parameter.
