@@ -34,7 +34,7 @@ public override void _Ready()
 
 ### `TweenExtensions` for C#
 
-Wrting `Tween.TweenCallback(Callable.From(someFunc))` is annoyed, with `TweenExtensions` we can just write `Tween.TweenCallback(someFunc)`.
+Writing `Tween.TweenCallback(Callable.From(someFunc))` is annoyed, with `TweenExtensions` we can just write `Tween.TweenCallback(someFunc)` instead.
 
 ### `move_and_slide(delta)`
 
