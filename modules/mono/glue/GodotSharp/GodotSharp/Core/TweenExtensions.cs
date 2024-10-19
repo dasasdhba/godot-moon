@@ -14,7 +14,7 @@ namespace Godot
         }
 
         /// <inheritdoc cref="Tween.TweenMethod"/>
-        public static MethodTweener TweenMethod<[MustBeVariant] T>(this Tween tween, Func<T, T> method, T from, T to, double duration)
+        public static MethodTweener TweenMethod<[MustBeVariant] T>(this Tween tween, Action<T> method, T from, T to, double duration)
         {
             return tween.TweenMethod(Callable.From(method), Variant.From(from), Variant.From(to), duration);
         }
