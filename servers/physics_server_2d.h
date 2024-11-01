@@ -113,16 +113,19 @@ public:
 class PhysicsRayQueryParameters2D;
 class PhysicsPointQueryParameters2D;
 class PhysicsShapeQueryParameters2D;
+class PhysicsRayQueryResult2D;
+class PhysicsShapeQueryResults2D;
+class PhysicsShapeRestInfo2D;
 
 class PhysicsDirectSpaceState2D : public Object {
 	GDCLASS(PhysicsDirectSpaceState2D, Object);
 
-	Dictionary _intersect_ray(const Ref<PhysicsRayQueryParameters2D> &p_ray_query);
-	TypedArray<Dictionary> _intersect_point(const Ref<PhysicsPointQueryParameters2D> &p_point_query, int p_max_results = 32);
-	TypedArray<Dictionary> _intersect_shape(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query, int p_max_results = 32);
+	Ref<PhysicsRayQueryResult2D> _intersect_ray(const Ref<PhysicsRayQueryParameters2D> &p_ray_query);
+	Ref<PhysicsShapeQueryResults2D> _intersect_point(const Ref<PhysicsPointQueryParameters2D> &p_point_query, int p_max_results = 32);
+	Ref<PhysicsShapeQueryResults2D> _intersect_shape(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query, int p_max_results = 32);
 	Vector<real_t> _cast_motion(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query);
 	TypedArray<Vector2> _collide_shape(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query, int p_max_results = 32);
-	Dictionary _get_rest_info(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query);
+	Ref<PhysicsShapeRestInfo2D> _get_rest_info(const Ref<PhysicsShapeQueryParameters2D> &p_shape_query);
 
 protected:
 	static void _bind_methods();
@@ -716,6 +719,56 @@ public:
 
 	void set_exclude(const TypedArray<RID> &p_exclude);
 	TypedArray<RID> get_exclude() const;
+};
+
+class PhysicsRayQueryResult2D : public RefCounted {
+	GDCLASS(PhysicsRayQueryResult2D, RefCounted);
+
+protected:
+	static void _bind_methods();
+
+public:
+	PhysicsDirectSpaceState2D::RayResult result;
+
+	Vector2 get_position() const { return result.position; }
+	Vector2 get_normal() const { return result.normal; }
+	RID get_rid() const { return result.rid; }
+	ObjectID get_collider_id() const { return result.collider_id; }
+	Object *get_collider() const { return result.collider; }
+	int get_shape() const { return result.shape; }
+};
+
+class PhysicsShapeQueryResults2D : public RefCounted {
+	GDCLASS(PhysicsShapeQueryResults2D, RefCounted);
+
+protected:
+	static void _bind_methods();
+
+public:
+	Vector<PhysicsDirectSpaceState2D::ShapeResult> results;
+
+	int get_collision_count() const { return results.size(); }
+	RID get_rid(int p_index) const { return results[p_index].rid; }
+	ObjectID get_collider_id(int p_index) const { return results[p_index].collider_id; }
+	Object *get_collider(int p_index) const { return results[p_index].collider; }
+	int get_shape(int p_index) const { return results[p_index].shape; }
+};
+
+class PhysicsShapeRestInfo2D : public RefCounted {
+	GDCLASS(PhysicsShapeRestInfo2D, RefCounted);
+
+protected:
+	static void _bind_methods();
+
+public:
+	PhysicsDirectSpaceState2D::ShapeRestInfo rest;
+
+	Vector2 get_point() const { return rest.point; }
+	Vector2 get_normal() const { return rest.normal; }
+	RID get_rid() const { return rest.rid; }
+	ObjectID get_collider_id() const { return rest.collider_id; }
+	int get_shape() const { return rest.shape; }
+	Vector2 get_linear_velocity() const { return rest.linear_velocity; }
 };
 
 class PhysicsTestMotionParameters2D : public RefCounted {

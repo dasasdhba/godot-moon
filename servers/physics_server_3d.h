@@ -118,17 +118,20 @@ public:
 class PhysicsRayQueryParameters3D;
 class PhysicsPointQueryParameters3D;
 class PhysicsShapeQueryParameters3D;
+class PhysicsRayQueryResult3D;
+class PhysicsShapeQueryResults3D;
+class PhysicsShapeRestInfo3D;
 
 class PhysicsDirectSpaceState3D : public Object {
 	GDCLASS(PhysicsDirectSpaceState3D, Object);
 
 private:
-	Dictionary _intersect_ray(const Ref<PhysicsRayQueryParameters3D> &p_ray_query);
-	TypedArray<Dictionary> _intersect_point(const Ref<PhysicsPointQueryParameters3D> &p_point_query, int p_max_results = 32);
-	TypedArray<Dictionary> _intersect_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);
+	Ref<PhysicsRayQueryResult3D> _intersect_ray(const Ref<PhysicsRayQueryParameters3D> &p_ray_query);
+	Ref<PhysicsShapeQueryResults3D> _intersect_point(const Ref<PhysicsPointQueryParameters3D> &p_point_query, int p_max_results = 32);
+	Ref<PhysicsShapeQueryResults3D> _intersect_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);
 	Vector<real_t> _cast_motion(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query);
 	TypedArray<Vector3> _collide_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);
-	Dictionary _get_rest_info(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query);
+	Ref<PhysicsShapeRestInfo3D> _get_rest_info(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query);
 
 protected:
 	static void _bind_methods();
@@ -919,6 +922,57 @@ public:
 
 	void set_exclude(const TypedArray<RID> &p_exclude);
 	TypedArray<RID> get_exclude() const;
+};
+
+class PhysicsRayQueryResult3D : public RefCounted {
+	GDCLASS(PhysicsRayQueryResult3D, RefCounted);
+
+protected:
+	static void _bind_methods();
+
+public:
+	PhysicsDirectSpaceState3D::RayResult result;
+
+	Vector3 get_position() const { return result.position; }
+	Vector3 get_normal() const { return result.normal; }
+	RID get_rid() const { return result.rid; }
+	ObjectID get_collider_id() const { return result.collider_id; }
+	Object *get_collider() const { return result.collider; }
+	int get_shape() const { return result.shape; }
+	int get_face_index() const { return result.face_index; }
+};
+
+class PhysicsShapeQueryResults3D : public RefCounted {
+	GDCLASS(PhysicsShapeQueryResults3D, RefCounted);
+
+protected:
+	static void _bind_methods();
+
+public:
+	Vector<PhysicsDirectSpaceState3D::ShapeResult> results;
+
+	int get_collision_count() const { return results.size(); }
+	RID get_rid(int p_index) const { return results[p_index].rid; }
+	ObjectID get_collider_id(int p_index) const { return results[p_index].collider_id; }
+	Object *get_collider(int p_index) const { return results[p_index].collider; }
+	int get_shape(int p_index) const { return results[p_index].shape; }
+};
+
+class PhysicsShapeRestInfo3D : public RefCounted {
+	GDCLASS(PhysicsShapeRestInfo3D, RefCounted);
+
+protected:
+	static void _bind_methods();
+
+public:
+	PhysicsDirectSpaceState3D::ShapeRestInfo rest;
+
+	Vector3 get_point() const { return rest.point; }
+	Vector3 get_normal() const { return rest.normal; }
+	RID get_rid() const { return rest.rid; }
+	ObjectID get_collider_id() const { return rest.collider_id; }
+	int get_shape() const { return rest.shape; }
+	Vector3 get_linear_velocity() const { return rest.linear_velocity; }
 };
 
 class PhysicsTestMotionParameters3D : public RefCounted {

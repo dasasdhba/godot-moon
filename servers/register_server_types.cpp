@@ -286,6 +286,9 @@ void register_server_types() {
 	GDREGISTER_CLASS(PhysicsShapeQueryParameters2D);
 	GDREGISTER_CLASS(PhysicsTestMotionParameters2D);
 	GDREGISTER_CLASS(PhysicsTestMotionResult2D);
+	GDREGISTER_CLASS(PhysicsRayQueryResult2D);
+	GDREGISTER_CLASS(PhysicsShapeQueryResults2D);
+	GDREGISTER_CLASS(PhysicsShapeRestInfo2D);
 
 	GLOBAL_DEF(PropertyInfo(Variant::STRING, PhysicsServer2DManager::setting_property_name, PROPERTY_HINT_ENUM, "DEFAULT"), "DEFAULT");
 
@@ -320,6 +323,9 @@ void register_server_types() {
 	GDREGISTER_CLASS(PhysicsShapeQueryParameters3D);
 	GDREGISTER_CLASS(PhysicsTestMotionParameters3D);
 	GDREGISTER_CLASS(PhysicsTestMotionResult3D);
+	GDREGISTER_CLASS(PhysicsRayQueryResult3D);
+	GDREGISTER_CLASS(PhysicsShapeQueryResults3D);
+	GDREGISTER_CLASS(PhysicsShapeRestInfo3D);
 
 	GLOBAL_DEF(PropertyInfo(Variant::STRING, PhysicsServer3DManager::setting_property_name, PROPERTY_HINT_ENUM, "DEFAULT"), "DEFAULT");
 
