@@ -82,9 +82,9 @@ bool Node2D::_edit_use_rotation() const {
 }
 
 void Node2D::_edit_set_rect(const Rect2 &p_edit_rect) {
-	ERR_FAIL_COND(!_edit_use_rect());
+	ERR_FAIL_COND(!edit_use_rect());
 
-	Rect2 r = _edit_get_rect();
+	Rect2 r = edit_get_rect();
 
 	Vector2 zero_offset;
 	Size2 new_scale(1, 1);

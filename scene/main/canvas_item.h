@@ -196,37 +196,86 @@ public:
 	/* EDITOR */
 #ifdef TOOLS_ENABLED
 	// Select the node
-	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+	bool edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
 
 	// Save and restore a CanvasItem state
-	virtual void _edit_set_state(const Dictionary &p_state) {}
-	virtual Dictionary _edit_get_state() const { return Dictionary(); }
+	void edit_set_state(const Dictionary &p_state);
+	Dictionary edit_get_state() const;
 
-	// Used to move the node
-	virtual void _edit_set_position(const Point2 &p_position) = 0;
-	virtual Point2 _edit_get_position() const = 0;
+	void edit_set_position(const Point2 &p_position);
+	Point2 edit_get_position() const;
 
-	// Used to scale the node
-	virtual void _edit_set_scale(const Size2 &p_scale) = 0;
-	virtual Size2 _edit_get_scale() const = 0;
+	void edit_set_scale(const Size2 &p_scale);
+	Size2 edit_get_scale() const;
 
-	// Used to rotate the node
-	virtual bool _edit_use_rotation() const { return false; };
-	virtual void _edit_set_rotation(real_t p_rotation) {}
-	virtual real_t _edit_get_rotation() const { return 0.0; };
+	bool edit_use_rotation() const;
+	void edit_set_rotation(real_t p_rotation);
+	real_t edit_get_rotation() const;
 
 	// Used to resize/move the node
-	virtual bool _edit_use_rect() const { return false; }; // MAYBE REPLACE BY A _edit_get_editmode()
-	virtual void _edit_set_rect(const Rect2 &p_rect) {}
-	virtual Rect2 _edit_get_rect() const { return Rect2(0, 0, 0, 0); };
-	virtual Size2 _edit_get_minimum_size() const { return Size2(-1, -1); }; // LOOKS WEIRD
+	bool edit_use_rect() const;
+	void edit_set_rect(const Rect2 &p_rect);
+	Rect2 edit_get_rect() const;
+	Size2 edit_get_minimum_size() const;
 
 	// Used to set a pivot
+	bool edit_use_pivot() const;
+	void edit_set_pivot(const Point2 &p_pivot);
+	Point2 edit_get_pivot() const;
+
+	Transform2D edit_get_transform() const;
+
+	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+
+	virtual void _edit_set_state(const Dictionary &p_state) {};
+	virtual Dictionary _edit_get_state() const { return Dictionary(); };
+
+	virtual void _edit_set_position(const Point2 &p_position) {};
+	virtual Point2 _edit_get_position() const { return Point2(); };
+
+	virtual void _edit_set_scale(const Size2 &p_scale) {};
+	virtual Size2 _edit_get_scale() const { return Size2(); };
+
+	virtual bool _edit_use_rotation() const { return false; };
+	virtual void _edit_set_rotation(real_t p_rotation) {};
+	virtual real_t _edit_get_rotation() const { return 0.0; };
+
+	virtual bool _edit_use_rect() const { return false; };// MAYBE REPLACE BY A _edit_get_editmode()
+	virtual void _edit_set_rect(const Rect2 &p_rect) {};
+	virtual Rect2 _edit_get_rect() const { return Rect2(0, 0, 0, 0); };
+	virtual Size2 _edit_get_minimum_size() const { return Size2(-1, -1); };
+
 	virtual bool _edit_use_pivot() const { return false; };
-	virtual void _edit_set_pivot(const Point2 &p_pivot) {}
+	virtual void _edit_set_pivot(const Point2 &p_pivot) {};
 	virtual Point2 _edit_get_pivot() const { return Point2(); };
 
 	virtual Transform2D _edit_get_transform() const;
+
+	GDVIRTUAL2RC(bool, _editor_is_selected_on_click, Point2, double);
+
+	GDVIRTUAL1(_editor_set_state, Dictionary);
+	GDVIRTUAL1C(_editor_get_state, Dictionary);
+
+	GDVIRTUAL1(_editor_set_position, Point2);
+	GDVIRTUAL0RC(Point2, _editor_get_position);
+
+	GDVIRTUAL1(_editor_set_scale, Size2);
+	GDVIRTUAL0RC(Size2, _editor_get_scale);
+
+	GDVIRTUAL0RC(bool, _editor_use_rotation);
+	GDVIRTUAL1(_editor_set_rotation, real_t);
+	GDVIRTUAL0RC(real_t, _editor_get_rotation);
+
+	GDVIRTUAL0RC(bool, _editor_use_rect);
+	GDVIRTUAL1(_editor_set_rect, Rect2);
+	GDVIRTUAL0RC(Rect2, _editor_get_rect);
+	GDVIRTUAL0RC(Size2, _editor_get_minimum_size);
+
+	GDVIRTUAL0RC(bool, _editor_use_pivot);
+	GDVIRTUAL1(_editor_set_pivot, Point2);
+	GDVIRTUAL0RC(Point2, _editor_get_pivot);
+
+	GDVIRTUAL0RC(Transform2D, _editor_get_transform);
 #endif
 
 	void update_draw_order();

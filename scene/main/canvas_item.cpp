@@ -46,15 +46,164 @@
 
 #ifdef TOOLS_ENABLED
 bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
-	if (_edit_use_rect()) {
-		return _edit_get_rect().has_point(p_point);
+	if (edit_use_rect()) {
+		return edit_get_rect().has_point(p_point);
 	} else {
 		return p_point.length() < p_tolerance;
 	}
 }
 
 Transform2D CanvasItem::_edit_get_transform() const {
-	return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());
+	return Transform2D(edit_get_rotation(), edit_get_position() + edit_get_pivot());
+}
+
+///////////////////////////////////////////////////////////////////
+
+bool CanvasItem::edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_is_selected_on_click)) {
+		bool ret;
+		GDVIRTUAL_CALL(_editor_is_selected_on_click, p_point, p_tolerance, ret);
+		return ret;
+	}
+	
+	return _edit_is_selected_on_click(p_point, p_tolerance);
+}
+
+void CanvasItem::edit_set_state(const Dictionary &p_state) {
+	_edit_set_state(p_state);
+	GDVIRTUAL_CALL(_editor_set_state, p_state);
+}
+
+Dictionary CanvasItem::edit_get_state() const {
+	Dictionary ret = _edit_get_state();
+	GDVIRTUAL_CALL(_editor_get_state, ret);
+	return ret;
+}
+
+void CanvasItem::edit_set_position(const Point2 &p_position) {
+	if (GDVIRTUAL_CALL(_editor_set_position, p_position)) {
+		return;
+	}
+	_edit_set_position(p_position);
+}
+
+Point2 CanvasItem::edit_get_position() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_get_position)) {
+		Point2 ret;
+		GDVIRTUAL_CALL(_editor_get_position, ret);
+		return ret;
+	}
+	return _edit_get_position();
+}
+
+void CanvasItem::edit_set_scale(const Size2 &p_scale) {
+	if (GDVIRTUAL_CALL(_editor_set_scale, p_scale)) {
+		return;
+	}
+	_edit_set_scale(p_scale);
+}
+
+Size2 CanvasItem::edit_get_scale() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_get_scale)) {
+		Size2 ret;
+		GDVIRTUAL_CALL(_editor_get_scale, ret);
+		return ret;
+	}
+	return _edit_get_scale();
+}
+
+bool CanvasItem::edit_use_rotation() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_use_rotation)) {
+		bool ret;
+		GDVIRTUAL_CALL(_editor_use_rotation, ret);
+		return ret;
+	}
+	return _edit_use_rotation();
+}
+
+void CanvasItem::edit_set_rotation(real_t p_rotation) {
+	if (GDVIRTUAL_CALL(_editor_set_rotation, p_rotation)) {
+		return;
+	}
+	_edit_set_rotation(p_rotation);
+}
+
+real_t CanvasItem::edit_get_rotation() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_get_rotation)) {
+		real_t ret;
+		GDVIRTUAL_CALL(_editor_get_rotation, ret);
+		return ret;
+	}
+	return _edit_get_rotation();
+}
+
+bool CanvasItem::edit_use_rect() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_use_rect)) {
+		bool ret;
+		GDVIRTUAL_CALL(_editor_use_rect, ret);
+		return ret;
+	}
+	return _edit_use_rect();
+}
+
+void CanvasItem::edit_set_rect(const Rect2 &p_rect) {
+	if (GDVIRTUAL_CALL(_editor_set_rect, p_rect)) {
+		return;
+	}
+	_edit_set_rect(p_rect);
+}
+
+Rect2 CanvasItem::edit_get_rect() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_get_rect)) {
+		Rect2 ret;
+		GDVIRTUAL_CALL(_editor_get_rect, ret);
+		return ret;
+	}
+	return _edit_get_rect();
+}
+
+
+Size2 CanvasItem::edit_get_minimum_size() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_get_minimum_size)) {
+		Size2 ret;
+		GDVIRTUAL_CALL(_editor_get_minimum_size, ret);
+		return ret;
+	}
+	return _edit_get_minimum_size();
+}
+
+bool CanvasItem::edit_use_pivot() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_use_pivot)) {
+		bool ret;
+		GDVIRTUAL_CALL(_editor_use_pivot, ret);
+		return ret;
+	}
+	return _edit_use_pivot();
+}
+
+void CanvasItem::edit_set_pivot(const Point2 &p_pivot) {
+	if (GDVIRTUAL_CALL(_editor_set_pivot, p_pivot)) {
+		return;
+	}
+	_edit_set_pivot(p_pivot);
+}
+
+Point2 CanvasItem::edit_get_pivot() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_get_pivot)) {
+		Point2 ret;
+		GDVIRTUAL_CALL(_editor_get_pivot, ret);
+		return ret;
+	}
+	return _edit_get_pivot();
+}
+
+Transform2D CanvasItem::edit_get_transform() const {
+	if (GDVIRTUAL_IS_OVERRIDDEN(_editor_get_transform)) {
+		Transform2D ret;
+		GDVIRTUAL_CALL(_editor_get_transform, ret);
+		return ret;
+	}
+	return _edit_get_transform();
 }
 #endif
 
@@ -1158,6 +1307,23 @@ void CanvasItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
 	ClassDB::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
 	ClassDB::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform);
+
+	ClassDB::bind_method(D_METHOD("edit_set_state", "state"), &CanvasItem::edit_set_state);
+	ClassDB::bind_method(D_METHOD("edit_get_state"), &CanvasItem::edit_get_state);
+	ClassDB::bind_method(D_METHOD("edit_set_position", "position"), &CanvasItem::edit_set_position);
+	ClassDB::bind_method(D_METHOD("edit_get_position"), &CanvasItem::edit_get_position);
+	ClassDB::bind_method(D_METHOD("edit_set_scale", "scale"), &CanvasItem::edit_set_scale);
+	ClassDB::bind_method(D_METHOD("edit_get_scale"), &CanvasItem::edit_get_scale);
+	ClassDB::bind_method(D_METHOD("edit_set_rect", "rect"), &CanvasItem::edit_set_rect);
+	ClassDB::bind_method(D_METHOD("edit_get_rect"), &CanvasItem::edit_get_rect);
+	ClassDB::bind_method(D_METHOD("edit_use_rect"), &CanvasItem::edit_use_rect);
+	ClassDB::bind_method(D_METHOD("edit_set_rotation", "degrees"), &CanvasItem::edit_set_rotation);
+	ClassDB::bind_method(D_METHOD("edit_get_rotation"), &CanvasItem::edit_get_rotation);
+	ClassDB::bind_method(D_METHOD("edit_use_rotation"), &CanvasItem::edit_use_rotation);
+	ClassDB::bind_method(D_METHOD("edit_set_pivot", "pivot"), &CanvasItem::edit_set_pivot);
+	ClassDB::bind_method(D_METHOD("edit_get_pivot"), &CanvasItem::edit_get_pivot);
+	ClassDB::bind_method(D_METHOD("edit_use_pivot"), &CanvasItem::edit_use_pivot);
+	ClassDB::bind_method(D_METHOD("edit_get_transform"), &CanvasItem::edit_get_transform);
 #endif
 
 	ClassDB::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);
@@ -1271,6 +1437,27 @@ void CanvasItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_clip_children_mode"), &CanvasItem::get_clip_children_mode);
 
 	GDVIRTUAL_BIND(_draw);
+
+#ifdef TOOLS_ENABLED
+	GDVIRTUAL_BIND(_editor_is_selected_on_click, "point", "tolerance");
+	GDVIRTUAL_BIND(_editor_set_state, "state");
+	GDVIRTUAL_BIND(_editor_get_state, "state");
+	GDVIRTUAL_BIND(_editor_set_position, "position");
+	GDVIRTUAL_BIND(_editor_get_position);
+	GDVIRTUAL_BIND(_editor_set_scale, "scale");
+	GDVIRTUAL_BIND(_editor_get_scale);
+	GDVIRTUAL_BIND(_editor_use_rotation);
+	GDVIRTUAL_BIND(_editor_set_rotation, "rotation");
+	GDVIRTUAL_BIND(_editor_get_rotation);
+	GDVIRTUAL_BIND(_editor_use_rect);
+	GDVIRTUAL_BIND(_editor_set_rect, "rect");
+	GDVIRTUAL_BIND(_editor_get_rect);
+	GDVIRTUAL_BIND(_editor_get_minimum_size);
+	GDVIRTUAL_BIND(_editor_use_pivot);
+	GDVIRTUAL_BIND(_editor_set_pivot, "pivot");
+	GDVIRTUAL_BIND(_editor_get_pivot);
+	GDVIRTUAL_BIND(_editor_get_transform);
+#endif
 
 	ADD_GROUP("Visibility", "");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "visible"), "set_visible", "is_visible");
