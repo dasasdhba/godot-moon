@@ -46,6 +46,10 @@ This provide an easy way to implement game speed control (e.g. gimmicks in Braid
 
 Godot's variant dictionary is pretty slow. As the critical part of physics overlapping test, I changed the return type of `intersect_ray/shape` to an object just like `KinematicCollision2D/3D`, which provides a much better performance.
 
+### Expose '_edit_use_rect` etc.
+
+Current approach is very hacky and has to be familiar with the source code to use it. Unless a huge refactor, or there is no good way to solve this.
+
 ## Godot Engine
 
 The followings are the original README content of Godot engine.
