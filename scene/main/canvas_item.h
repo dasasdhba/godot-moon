@@ -194,7 +194,34 @@ public:
 	};
 
 	/* EDITOR */
+
 #ifdef TOOLS_ENABLED
+	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
+
+	virtual void _edit_set_state(const Dictionary &p_state) {};
+	virtual Dictionary _edit_get_state() const { return Dictionary(); };
+
+	virtual void _edit_set_position(const Point2 &p_position) {};
+	virtual Point2 _edit_get_position() const { return Point2(); };
+
+	virtual void _edit_set_scale(const Size2 &p_scale) {};
+	virtual Size2 _edit_get_scale() const { return Size2(); };
+
+	virtual bool _edit_use_rotation() const { return false; };
+	virtual void _edit_set_rotation(real_t p_rotation) {};
+	virtual real_t _edit_get_rotation() const { return 0.0; };
+
+	virtual bool _edit_use_rect() const { return false; };// MAYBE REPLACE BY A _edit_get_editmode()
+	virtual void _edit_set_rect(const Rect2 &p_rect) {};
+	virtual Rect2 _edit_get_rect() const { return Rect2(0, 0, 0, 0); };
+	virtual Size2 _edit_get_minimum_size() const { return Size2(-1, -1); };
+
+	virtual bool _edit_use_pivot() const { return false; };
+	virtual void _edit_set_pivot(const Point2 &p_pivot) {};
+	virtual Point2 _edit_get_pivot() const { return Point2(); };
+
+	virtual Transform2D _edit_get_transform() const;
+#endif
 	// Select the node
 	bool edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
 
@@ -225,32 +252,6 @@ public:
 
 	Transform2D edit_get_transform() const;
 
-	virtual bool _edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const;
-
-	virtual void _edit_set_state(const Dictionary &p_state) {};
-	virtual Dictionary _edit_get_state() const { return Dictionary(); };
-
-	virtual void _edit_set_position(const Point2 &p_position) {};
-	virtual Point2 _edit_get_position() const { return Point2(); };
-
-	virtual void _edit_set_scale(const Size2 &p_scale) {};
-	virtual Size2 _edit_get_scale() const { return Size2(); };
-
-	virtual bool _edit_use_rotation() const { return false; };
-	virtual void _edit_set_rotation(real_t p_rotation) {};
-	virtual real_t _edit_get_rotation() const { return 0.0; };
-
-	virtual bool _edit_use_rect() const { return false; };// MAYBE REPLACE BY A _edit_get_editmode()
-	virtual void _edit_set_rect(const Rect2 &p_rect) {};
-	virtual Rect2 _edit_get_rect() const { return Rect2(0, 0, 0, 0); };
-	virtual Size2 _edit_get_minimum_size() const { return Size2(-1, -1); };
-
-	virtual bool _edit_use_pivot() const { return false; };
-	virtual void _edit_set_pivot(const Point2 &p_pivot) {};
-	virtual Point2 _edit_get_pivot() const { return Point2(); };
-
-	virtual Transform2D _edit_get_transform() const;
-
 	GDVIRTUAL2RC(bool, _editor_is_selected_on_click, Point2, double);
 
 	GDVIRTUAL1(_editor_set_state, Dictionary);
@@ -276,7 +277,6 @@ public:
 	GDVIRTUAL0RC(Point2, _editor_get_pivot);
 
 	GDVIRTUAL0RC(Transform2D, _editor_get_transform);
-#endif
 
 	void update_draw_order();
 

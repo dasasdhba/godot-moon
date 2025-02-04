@@ -57,6 +57,8 @@ Transform2D CanvasItem::_edit_get_transform() const {
 	return Transform2D(edit_get_rotation(), edit_get_position() + edit_get_pivot());
 }
 
+#endif
+
 ///////////////////////////////////////////////////////////////////
 
 bool CanvasItem::edit_is_selected_on_click(const Point2 &p_point, double p_tolerance) const {
@@ -65,17 +67,26 @@ bool CanvasItem::edit_is_selected_on_click(const Point2 &p_point, double p_toler
 		GDVIRTUAL_CALL(_editor_is_selected_on_click, p_point, p_tolerance, ret);
 		return ret;
 	}
-	
+#ifdef TOOLS_ENABLED
 	return _edit_is_selected_on_click(p_point, p_tolerance);
+#else
+	return false;
+#endif
 }
 
 void CanvasItem::edit_set_state(const Dictionary &p_state) {
+#ifdef TOOLS_ENABLED
 	_edit_set_state(p_state);
+#endif
 	GDVIRTUAL_CALL(_editor_set_state, p_state);
 }
 
 Dictionary CanvasItem::edit_get_state() const {
+#ifdef TOOLS_ENABLED
 	Dictionary ret = _edit_get_state();
+#else
+	Dictionary ret = Dictionary();
+#endif
 	GDVIRTUAL_CALL(_editor_get_state, ret);
 	return ret;
 }
@@ -84,7 +95,9 @@ void CanvasItem::edit_set_position(const Point2 &p_position) {
 	if (GDVIRTUAL_CALL(_editor_set_position, p_position)) {
 		return;
 	}
+#ifdef TOOLS_ENABLED
 	_edit_set_position(p_position);
+#endif
 }
 
 Point2 CanvasItem::edit_get_position() const {
@@ -93,14 +106,20 @@ Point2 CanvasItem::edit_get_position() const {
 		GDVIRTUAL_CALL(_editor_get_position, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_get_position();
+#else
+	return Point2();
+#endif
 }
 
 void CanvasItem::edit_set_scale(const Size2 &p_scale) {
 	if (GDVIRTUAL_CALL(_editor_set_scale, p_scale)) {
 		return;
 	}
+#ifdef TOOLS_ENABLED
 	_edit_set_scale(p_scale);
+#endif
 }
 
 Size2 CanvasItem::edit_get_scale() const {
@@ -109,7 +128,11 @@ Size2 CanvasItem::edit_get_scale() const {
 		GDVIRTUAL_CALL(_editor_get_scale, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_get_scale();
+#else
+	return Size2();
+#endif
 }
 
 bool CanvasItem::edit_use_rotation() const {
@@ -118,14 +141,20 @@ bool CanvasItem::edit_use_rotation() const {
 		GDVIRTUAL_CALL(_editor_use_rotation, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_use_rotation();
+#else
+	return false;
+#endif
 }
 
 void CanvasItem::edit_set_rotation(real_t p_rotation) {
 	if (GDVIRTUAL_CALL(_editor_set_rotation, p_rotation)) {
 		return;
 	}
+#ifdef TOOLS_ENABLED
 	_edit_set_rotation(p_rotation);
+#endif
 }
 
 real_t CanvasItem::edit_get_rotation() const {
@@ -134,7 +163,11 @@ real_t CanvasItem::edit_get_rotation() const {
 		GDVIRTUAL_CALL(_editor_get_rotation, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_get_rotation();
+#else
+	return 0;
+#endif
 }
 
 bool CanvasItem::edit_use_rect() const {
@@ -143,14 +176,20 @@ bool CanvasItem::edit_use_rect() const {
 		GDVIRTUAL_CALL(_editor_use_rect, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_use_rect();
+#else
+	return false;
+#endif
 }
 
 void CanvasItem::edit_set_rect(const Rect2 &p_rect) {
 	if (GDVIRTUAL_CALL(_editor_set_rect, p_rect)) {
 		return;
 	}
+#ifdef TOOLS_ENABLED
 	_edit_set_rect(p_rect);
+#endif
 }
 
 Rect2 CanvasItem::edit_get_rect() const {
@@ -159,7 +198,11 @@ Rect2 CanvasItem::edit_get_rect() const {
 		GDVIRTUAL_CALL(_editor_get_rect, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_get_rect();
+#else
+	return Rect2();
+#endif
 }
 
 
@@ -169,7 +212,11 @@ Size2 CanvasItem::edit_get_minimum_size() const {
 		GDVIRTUAL_CALL(_editor_get_minimum_size, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_get_minimum_size();
+#else
+	return Size2();
+#endif
 }
 
 bool CanvasItem::edit_use_pivot() const {
@@ -178,14 +225,20 @@ bool CanvasItem::edit_use_pivot() const {
 		GDVIRTUAL_CALL(_editor_use_pivot, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_use_pivot();
+#else
+	return false;
+#endif
 }
 
 void CanvasItem::edit_set_pivot(const Point2 &p_pivot) {
 	if (GDVIRTUAL_CALL(_editor_set_pivot, p_pivot)) {
 		return;
 	}
+#ifdef TOOLS_ENABLED
 	_edit_set_pivot(p_pivot);
+#endif	
 }
 
 Point2 CanvasItem::edit_get_pivot() const {
@@ -194,7 +247,11 @@ Point2 CanvasItem::edit_get_pivot() const {
 		GDVIRTUAL_CALL(_editor_get_pivot, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_get_pivot();
+#else
+	return Point2();
+#endif
 }
 
 Transform2D CanvasItem::edit_get_transform() const {
@@ -203,9 +260,12 @@ Transform2D CanvasItem::edit_get_transform() const {
 		GDVIRTUAL_CALL(_editor_get_transform, ret);
 		return ret;
 	}
+#ifdef TOOLS_ENABLED
 	return _edit_get_transform();
-}
+#else
+	return Transform2D();
 #endif
+}
 
 bool CanvasItem::is_visible_in_tree() const {
 	ERR_READ_THREAD_GUARD_V(false);
@@ -1307,6 +1367,7 @@ void CanvasItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
 	ClassDB::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
 	ClassDB::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform);
+#endif
 
 	ClassDB::bind_method(D_METHOD("edit_set_state", "state"), &CanvasItem::edit_set_state);
 	ClassDB::bind_method(D_METHOD("edit_get_state"), &CanvasItem::edit_get_state);
@@ -1324,7 +1385,7 @@ void CanvasItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("edit_get_pivot"), &CanvasItem::edit_get_pivot);
 	ClassDB::bind_method(D_METHOD("edit_use_pivot"), &CanvasItem::edit_use_pivot);
 	ClassDB::bind_method(D_METHOD("edit_get_transform"), &CanvasItem::edit_get_transform);
-#endif
+
 
 	ClassDB::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);
 
@@ -1438,7 +1499,6 @@ void CanvasItem::_bind_methods() {
 
 	GDVIRTUAL_BIND(_draw);
 
-#ifdef TOOLS_ENABLED
 	GDVIRTUAL_BIND(_editor_is_selected_on_click, "point", "tolerance");
 	GDVIRTUAL_BIND(_editor_set_state, "state");
 	GDVIRTUAL_BIND(_editor_get_state, "state");
@@ -1457,7 +1517,6 @@ void CanvasItem::_bind_methods() {
 	GDVIRTUAL_BIND(_editor_set_pivot, "pivot");
 	GDVIRTUAL_BIND(_editor_get_pivot);
 	GDVIRTUAL_BIND(_editor_get_transform);
-#endif
 
 	ADD_GROUP("Visibility", "");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "visible"), "set_visible", "is_visible");

@@ -647,9 +647,9 @@ void LiveEditor::_node_set_func(int p_id, const StringName &p_prop, const Varian
 					n2->call("set_transform", orig_tf);
 				}
 			} else if (n2->is_class("CanvasItem")) {
-				Variant new_tf = n2->call("_edit_get_state");
+				Variant new_tf = n2->call("edit_get_state");
 				if (new_tf != orig_tf) {
-					n2->call("_edit_set_state", orig_tf);
+					n2->call("edit_set_state", orig_tf);
 				}
 			}
 		}
@@ -719,9 +719,9 @@ void LiveEditor::_node_call_func(int p_id, const StringName &p_method, const Var
 					n2->call("set_transform", orig_tf);
 				}
 			} else if (n2->is_class("CanvasItem")) {
-				Variant new_tf = n2->call("_edit_get_state");
+				Variant new_tf = n2->call("edit_get_state");
 				if (new_tf != orig_tf) {
-					n2->call("_edit_set_state", orig_tf);
+					n2->call("edit_set_state", orig_tf);
 				}
 			}
 		}

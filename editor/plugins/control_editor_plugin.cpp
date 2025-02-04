@@ -749,7 +749,7 @@ void ControlEditorToolbar::_anchors_preset_selected(int p_preset) {
 		if (control) {
 			undo_redo->add_do_property(control, "layout_mode", LayoutMode::LAYOUT_MODE_ANCHORS);
 			undo_redo->add_do_property(control, "anchors_preset", preset);
-			undo_redo->add_undo_method(control, "_edit_set_state", control->_edit_get_state());
+			undo_redo->add_undo_method(control, "edit_set_state", control->edit_get_state());
 		}
 	}
 

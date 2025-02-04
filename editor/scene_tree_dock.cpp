@@ -2406,7 +2406,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
 		}
 
 		if (reparented_to_container) {
-			undo_redo->add_undo_method(node, "_edit_set_state", Object::cast_to<Control>(node)->_edit_get_state());
+			undo_redo->add_undo_method(node, "edit_set_state", Object::cast_to<Control>(node)->edit_get_state());
 		}
 	}
 
