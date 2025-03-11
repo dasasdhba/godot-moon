@@ -6182,6 +6182,7 @@ DisplayServerX11::DisplayServerX11(const String &p_rendering_driver, WindowMode 
 				r_error = ERR_CANT_CREATE;
 
 				if (p_rendering_driver == "vulkan") {
+					String executable_name = OS::get_singleton()->get_executable_path().get_file();
 					OS::get_singleton()->alert(
 							vformat("Your video card drivers seem not to support the required Vulkan version.\n\n"
 									"If possible, consider updating your video card drivers or using the OpenGL 3 driver.\n\n"
