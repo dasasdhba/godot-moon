@@ -62,6 +62,7 @@ class AnimatedSprite2D : public Node2D {
 	void _stop_internal(bool p_reset);
 
 	Rect2 _get_rect() const;
+	void _animate(double p_delta);
 
 protected:
 #ifndef DISABLE_DEPRECATED
@@ -82,6 +83,11 @@ public:
 	virtual Rect2 _edit_get_rect() const override;
 	virtual bool _edit_use_rect() const override;
 #endif
+
+	enum AnimatedSprite2DProcessCallback {
+		ANIMATED_SPRITE_2D_PROCESS_PHYSICS,
+		ANIMATED_SPRITE_2D_PROCESS_IDLE,
+	};
 
 	virtual Rect2 get_anchorable_rect() const override;
 
@@ -131,7 +137,16 @@ public:
 	virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const override;
 #endif
 
+	void set_animated_sprite_2d_process_callback(AnimatedSprite2DProcessCallback p_callback);
+	AnimatedSprite2DProcessCallback get_animated_sprite_2d_process_callback() const;
+
 	AnimatedSprite2D();
+
+private:
+	AnimatedSprite2DProcessCallback animated_sprite_2d_process_callback = ANIMATED_SPRITE_2D_PROCESS_IDLE;
+	void _set_process(bool p_process);
 };
+
+VARIANT_ENUM_CAST(AnimatedSprite2D::AnimatedSprite2DProcessCallback);
 
 #endif // ANIMATED_SPRITE_2D_H

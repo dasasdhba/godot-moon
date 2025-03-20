@@ -50,6 +50,10 @@ Godot's variant dictionary is pretty slow. As the critical part of physics overl
 
 Current approach is very hacky and has to be familiar with the source code to use it. Unless a huge refactor, there is no good way to solve this.
 
+### AnimatedSprite2DProcessCallback
+
+Allow AnimatedSprite2D processing in physics, which can make it safe to sync with physics.
+
 ### Some minor bugfix in the upstream
 
 Just some bugfix as I needed.

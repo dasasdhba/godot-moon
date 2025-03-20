@@ -163,6 +163,83 @@ void AnimatedSprite2D::_validate_property(PropertyInfo &p_property) const {
 	}
 }
 
+void AnimatedSprite2D::_animate(double p_delta) {
+	if (frames.is_null() || !frames->has_animation(animation)) {
+		return;
+	}
+
+	double remaining = p_delta;
+	int i = 0;
+	while (remaining) {
+		// Animation speed may be changed by animation_finished or frame_changed signals.
+		double speed = frames->get_animation_speed(animation) * speed_scale * custom_speed_scale * frame_speed_scale;
+		double abs_speed = Math::abs(speed);
+
+		if (speed == 0) {
+			return; // Do nothing.
+		}
+
+		// Frame count may be changed by animation_finished or frame_changed signals.
+		int fc = frames->get_frame_count(animation);
+
+		int last_frame = fc - 1;
+		if (!signbit(speed)) {
+			// Forwards.
+			if (frame_progress >= 1.0) {
+				if (frame >= last_frame) {
+					if (frames->get_animation_loop(animation)) {
+						frame = 0;
+						emit_signal("animation_looped");
+					} else {
+						frame = last_frame;
+						pause();
+						emit_signal(SceneStringName(animation_finished));
+						return;
+					}
+				} else {
+					frame++;
+				}
+				_calc_frame_speed_scale();
+				frame_progress = 0.0;
+				queue_redraw();
+				emit_signal(SceneStringName(frame_changed));
+			}
+			double to_process = MIN((1.0 - frame_progress) / abs_speed, remaining);
+			frame_progress += to_process * abs_speed;
+			remaining -= to_process;
+		} else {
+			// Backwards.
+			if (frame_progress <= 0) {
+				if (frame <= 0) {
+					if (frames->get_animation_loop(animation)) {
+						frame = last_frame;
+						emit_signal("animation_looped");
+					} else {
+						frame = 0;
+						pause();
+						emit_signal(SceneStringName(animation_finished));
+						return;
+					}
+				} else {
+					frame--;
+				}
+				_calc_frame_speed_scale();
+				frame_progress = 1.0;
+				queue_redraw();
+				emit_signal(SceneStringName(frame_changed));
+			}
+			double to_process = MIN(frame_progress / abs_speed, remaining);
+			frame_progress -= to_process * abs_speed;
+			remaining -= to_process;
+		}
+
+		i++;
+		if (i > fc) {
+			return; // Prevents freezing if to_process is each time much less than remaining.
+		}
+	}
+}
+
 void AnimatedSprite2D::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_READY: {
@@ -172,80 +249,11 @@ void AnimatedSprite2D::_notification(int p_what) {
 		} break;
 
 		case NOTIFICATION_INTERNAL_PROCESS: {
-			if (frames.is_null() || !frames->has_animation(animation)) {
-				return;
-			}
+			_animate(get_process_delta_time());
+		} break;
 
-			double remaining = get_process_delta_time();
-			int i = 0;
-			while (remaining) {
-				// Animation speed may be changed by animation_finished or frame_changed signals.
-				double speed = frames->get_animation_speed(animation) * speed_scale * custom_speed_scale * frame_speed_scale;
-				double abs_speed = Math::abs(speed);
-
-				if (speed == 0) {
-					return; // Do nothing.
-				}
-
-				// Frame count may be changed by animation_finished or frame_changed signals.
-				int fc = frames->get_frame_count(animation);
-
-				int last_frame = fc - 1;
-				if (!signbit(speed)) {
-					// Forwards.
-					if (frame_progress >= 1.0) {
-						if (frame >= last_frame) {
-							if (frames->get_animation_loop(animation)) {
-								frame = 0;
-								emit_signal("animation_looped");
-							} else {
-								frame = last_frame;
-								pause();
-								emit_signal(SceneStringName(animation_finished));
-								return;
-							}
-						} else {
-							frame++;
-						}
-						_calc_frame_speed_scale();
-						frame_progress = 0.0;
-						queue_redraw();
-						emit_signal(SceneStringName(frame_changed));
-					}
-					double to_process = MIN((1.0 - frame_progress) / abs_speed, remaining);
-					frame_progress += to_process * abs_speed;
-					remaining -= to_process;
-				} else {
-					// Backwards.
-					if (frame_progress <= 0) {
-						if (frame <= 0) {
-							if (frames->get_animation_loop(animation)) {
-								frame = last_frame;
-								emit_signal("animation_looped");
-							} else {
-								frame = 0;
-								pause();
-								emit_signal(SceneStringName(animation_finished));
-								return;
-							}
-						} else {
-							frame--;
-						}
-						_calc_frame_speed_scale();
-						frame_progress = 1.0;
-						queue_redraw();
-						emit_signal(SceneStringName(frame_changed));
-					}
-					double to_process = MIN(frame_progress / abs_speed, remaining);
-					frame_progress -= to_process * abs_speed;
-					remaining -= to_process;
-				}
-
-				i++;
-				if (i > fc) {
-					return; // Prevents freezing if to_process is each time much less than remaining.
-				}
-			}
+		case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
+			_animate(get_physics_process_delta_time());
 		} break;
 
 		case NOTIFICATION_DRAW: {
@@ -494,7 +502,7 @@ void AnimatedSprite2D::play(const StringName &p_name, float p_custom_scale, bool
 		}
 	}
 
-	set_process_internal(true);
+	_set_process(true);
 	notify_property_list_changed();
 	queue_redraw();
 }
@@ -510,7 +518,7 @@ void AnimatedSprite2D::_stop_internal(bool p_reset) {
 		set_frame_and_progress(0, 0.0);
 	}
 	notify_property_list_changed();
-	set_process_internal(false);
+	_set_process(false);
 }
 
 void AnimatedSprite2D::pause() {
@@ -569,6 +577,43 @@ void AnimatedSprite2D::set_animation(const StringName &p_name) {
 
 StringName AnimatedSprite2D::get_animation() const {
 	return animation;
+}
+
+void AnimatedSprite2D::set_animated_sprite_2d_process_callback(AnimatedSprite2DProcessCallback p_callback) {
+	if (animated_sprite_2d_process_callback == p_callback) {
+		return;
+	}
+
+	switch (animated_sprite_2d_process_callback) {
+		case ANIMATED_SPRITE_2D_PROCESS_PHYSICS:
+			if (is_physics_processing_internal()) {
+				set_physics_process_internal(false);
+				set_process_internal(true);
+			}
+			break;
+		case ANIMATED_SPRITE_2D_PROCESS_IDLE:
+			if (is_processing_internal()) {
+				set_process_internal(false);
+				set_physics_process_internal(true);
+			}
+			break;
+	}
+	animated_sprite_2d_process_callback = p_callback;
+}
+
+AnimatedSprite2D::AnimatedSprite2DProcessCallback AnimatedSprite2D::get_animated_sprite_2d_process_callback() const {
+	return animated_sprite_2d_process_callback;
+}
+
+void AnimatedSprite2D::_set_process(bool p_process) {
+	switch (animated_sprite_2d_process_callback) {
+		case ANIMATED_SPRITE_2D_PROCESS_PHYSICS:
+			set_physics_process_internal(p_process);
+			break;
+		case ANIMATED_SPRITE_2D_PROCESS_IDLE:
+			set_process_internal(p_process);
+			break;
+	}
 }
 
 PackedStringArray AnimatedSprite2D::get_configuration_warnings() const {
@@ -645,12 +690,16 @@ void AnimatedSprite2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_speed_scale"), &AnimatedSprite2D::get_speed_scale);
 	ClassDB::bind_method(D_METHOD("get_playing_speed"), &AnimatedSprite2D::get_playing_speed);
 
+	ClassDB::bind_method(D_METHOD("set_animated_sprite_2d_process_callback", "callback"), &AnimatedSprite2D::set_animated_sprite_2d_process_callback);
+	ClassDB::bind_method(D_METHOD("get_animated_sprite_2d_process_callback"), &AnimatedSprite2D::get_animated_sprite_2d_process_callback);
+	
 	ADD_SIGNAL(MethodInfo("sprite_frames_changed"));
 	ADD_SIGNAL(MethodInfo("animation_changed"));
 	ADD_SIGNAL(MethodInfo("frame_changed"));
 	ADD_SIGNAL(MethodInfo("animation_looped"));
 	ADD_SIGNAL(MethodInfo("animation_finished"));
 
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "process_callback", PROPERTY_HINT_ENUM, "Physics,Idle"), "set_animated_sprite_2d_process_callback", "get_animated_sprite_2d_process_callback");
 	ADD_GROUP("Animation", "");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "sprite_frames", PROPERTY_HINT_RESOURCE_TYPE, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING_NAME, "animation", PROPERTY_HINT_ENUM, ""), "set_animation", "get_animation");
@@ -663,6 +712,9 @@ void AnimatedSprite2D::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "offset", PROPERTY_HINT_NONE, "suffix:px"), "set_offset", "get_offset");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
+
+	BIND_ENUM_CONSTANT(ANIMATED_SPRITE_2D_PROCESS_PHYSICS);
+	BIND_ENUM_CONSTANT(ANIMATED_SPRITE_2D_PROCESS_IDLE);
 }
 
 AnimatedSprite2D::AnimatedSprite2D() {
