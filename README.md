@@ -32,6 +32,16 @@ public override void _Ready()
 }
 ```
 
+By the way, here are also some tricks for better signal emitting and async waiting.
+
+```csharp
+// equivalent to EmitSignal(SignalName.Timeout)
+EmitSignalTimeout();
+
+// equivalent to ToSignal(this, SignalName.Timeout)
+TimeoutAsync();
+```
+
 ### `TweenExtensions` for C#
 
 Writing `Tween.TweenCallback(Callable.From(someFunc))` is annoyed, with `TweenExtensions` we can just write `Tween.TweenCallback(someFunc)` instead.

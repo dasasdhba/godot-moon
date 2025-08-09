@@ -290,60 +290,129 @@ namespace Godot.SourceGenerators
                     .Append("}\n");
 
 				// ATTENTION: das's changement here
+                string get_joined_param_list()
+                {
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
+                        return "";
+                    
+                    return string.Join(", ", signalDelegate.InvokeMethodData.ParamTypeSymbols
+                        .Select(t => t.FullQualifiedNameIncludeGlobal()));
+                }
+
 				string get_signal_param_list()
 				{
 					if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
 						return "";
-					string result = "<";
+                    
+                    return $"<{get_joined_param_list()}>";
+				}
+
+                string get_param_arg_list()
+                {
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
+                        return "";
+
+                    var result = new StringBuilder();
 					for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
 					{
 						if (i != 0)
-							result += ", ";
+							result.Append(", ");
 
-						result += signalDelegate.InvokeMethodData.ParamTypeSymbols[i].FullQualifiedNameIncludeGlobal();
+						result.Append(signalDelegate.InvokeMethodData.ParamTypeSymbols[i].FullQualifiedNameIncludeGlobal());
+						result.Append(" arg");
+						result.Append(i);
 					}
-					
-					result += ">";
-					return result;
-				}
+
+					return result.ToString();
+                }
+
+                string get_param_invoke_list()
+                {
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
+                        return "";
+
+                    var result = new StringBuilder();
+					for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
+					{
+						if (i != 0)
+							result.Append(", ");
+
+						result.Append("arg");
+						result.Append(i);
+					}
+
+					return result.ToString();
+                }
+
+                string get_param_invoke_part_list()
+                {
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
+                        return "";
+
+                    var result = new StringBuilder();
+					for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
+					{
+						result.Append(", arg");
+						result.Append(i);
+					}
+
+					return result.ToString();
+                }
 
 				string get_oneshot_func_name()
 				{
-					string result = "void oneshotAction(";
-					if (signalDelegate.InvokeMethodData.ParamTypes.Length != 0)
-					{
-						for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
-						{
-							if (i != 0)
-								result += ", ";
-
-							result += signalDelegate.InvokeMethodData.ParamTypeSymbols[i].FullQualifiedNameIncludeGlobal();
-							result += " arg" + i.ToString();
-						}
-					}
-					result += ")";
-					return result;
+                    return $"void oneshotAction({get_param_arg_list()})";
 				}
 
 				string get_oneshot_func_invoke()
 				{
-					string result = "value?.Invoke(";
-					if (signalDelegate.InvokeMethodData.ParamTypes.Length != 0)
-					{
-						for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
-						{
-							if (i != 0)
-								result += ", ";
-							
-							result += "arg" + i.ToString();
-						}
-					}
-					result += ");";
-					return result;
+					return $"value?.Invoke({get_param_invoke_list()});";
 				}
+                
+                string get_task_param_list()
+                {
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
+                        return "";
+
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 1)
+                        return $"<{signalDelegate.InvokeMethodData.ParamTypeSymbols[0].FullQualifiedNameIncludeGlobal()}>";
+
+                    return $"<({get_joined_param_list()})>";
+                }
+
+                string get_task_function_body()
+                {
+                    var waitBody = $"await ToSignal(this, SignalName.{signalName});\n";
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 0)
+                        return waitBody;
+
+                    var result = new StringBuilder();
+                    result.Append($"var results = {waitBody}");
+
+                    if (signalDelegate.InvokeMethodData.ParamTypes.Length == 1)
+                        result.Append($"return ({signalDelegate.InvokeMethodData.ParamTypeSymbols[0].FullQualifiedNameIncludeGlobal()})results[0];\n");
+                    else
+                    {
+                        result.Append("return (");
+                        for (int i = 0; i < signalDelegate.InvokeMethodData.ParamTypes.Length; i++)
+                        {
+                            if (i != 0)
+                                result.Append(", ");
+
+                            result.Append("(");
+                            result.Append(signalDelegate.InvokeMethodData.ParamTypeSymbols[i].FullQualifiedNameIncludeGlobal());
+                            result.Append($")results[{i}]");
+                        }
+
+                        result.Append(");\n");
+                    }
+
+                    return result.ToString();
+                }
 
 				// Signal + SignalName: Use godot Connect API
-				source.Append("    public event System.Action" + get_signal_param_list())
+				source.Append("    public event System.Action")
+                    .Append(get_signal_param_list())
                     .Append(" Signal")
                     .Append(signalName)
                     .Append(" {\n")
@@ -356,7 +425,8 @@ namespace Godot.SourceGenerators
                     .Append("}\n");
 
 				// SignalOneshot + SignalName: Use godot Connect API with oneshot flag
-				source.Append("    public event System.Action" + get_signal_param_list())
+				source.Append("    public event System.Action")
+                    .Append(get_signal_param_list())
                     .Append(" SignalOneshot")
                     .Append(signalName)
                     .Append(" {\n")
@@ -369,7 +439,8 @@ namespace Godot.SourceGenerators
                     .Append("}\n");
 
 				// Oneshot + SignalName: C# event with oneshot
-				source.Append("    public event System.Action" + get_signal_param_list())
+				source.Append("    public event System.Action")
+                    .Append(get_signal_param_list())
                     .Append(" Oneshot")
                     .Append(signalName)
                     .Append(" {\n")
@@ -389,6 +460,21 @@ namespace Godot.SourceGenerators
 					.Append(" -= oneshotAction;\n}\n            ")
 					.Append(signalName)
 					.Append(" -= oneshotAction;\n}\n}\n");
+
+                // Emit function
+                source.Append("    public void EmitSignal")
+                    .Append(signalName)
+                    .Append($"({get_param_arg_list()})")
+                    .Append($" => EmitSignal(SignalName.{signalName}{get_param_invoke_part_list()});\n");
+            
+                // Task
+                source.Append("    public async System.Threading.Tasks.Task")
+                    .Append(get_task_param_list())
+                    .Append(" ")
+                    .Append(signalName)
+                    .Append("Async() {\n")
+                    .Append(get_task_function_body())
+                    .Append("}\n");
             }
 
             // Generate RaiseGodotClassSignalCallbacks
