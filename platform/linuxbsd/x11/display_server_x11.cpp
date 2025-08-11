@@ -6194,6 +6194,7 @@ DisplayServerX11::DisplayServerX11(const String &p_rendering_driver, WindowMode 
 				}
 
 				ERR_FAIL_MSG(vformat("Could not initialize %s", rendering_driver));
+            }
 		}
 		driver_found = true;
 	}
